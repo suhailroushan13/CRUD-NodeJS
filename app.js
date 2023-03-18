@@ -1,20 +1,17 @@
 import http from "http";
 import url from "url";
-import dotenv from "dotenv";
-dotenv.config();
-import getRoute from "./routes/get.js";
-import postRoute from "./routes/post.js";
-import putRoute from "./routes/put.js";
-import deleteRoute from "./routes/delete.js";
 import fs from "fs/promises";
+import getRoute from "./routes/getRoute.js";
+import postRoute from "./routes/postRoute.js";
+import deleteRoute from "./routes/deleteRoute.js";
+import putRoute from "./routes/putRoute.js";
 
-const port = process.env.PORT || 5001;
+const port = 8000;
 
 let main = async () => {
   let server = http.createServer(async (req, res) => {
-    let urlParsed = url.parse(req.url, true);
-    let route = urlParsed.pathname;
     let method = req.method;
+
     let data = await fs.readFile("./data/movies.json", "utf-8");
     req.movies = JSON.parse(data);
 
@@ -23,18 +20,22 @@ let main = async () => {
         getRoute(req, res);
         break;
       case "POST":
+        postRoute(req, res);
         break;
       case "PUT":
+        putRoute(req, res);
         break;
       case "DELETE":
+        deleteRoute(req, res);
         break;
       default:
-        res.end(JSON.stringify({ msg: "No Method Found" }));
+        res.end(JSON.stringify({ msg: "Method Not Allowed" }));
         break;
     }
   });
+
   server.listen(port, () => {
-    console.log(`Server Running at port ${port}`);
+    console.log(`Server Listening at Port ${port}`);
   });
 };
 
